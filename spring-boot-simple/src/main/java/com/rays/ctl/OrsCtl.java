@@ -17,15 +17,14 @@ import com.rays.dto.TestDTO;
 public class OrsCtl {
 
 	@GetMapping
-	public ORSResponse display() {
+	public ORSResponse display() { // Normal
 
 		ORSResponse res = new ORSResponse();
 		return res;
 	}
 
-	@GetMapping("display1")
+	@GetMapping("display1") // for Success
 	public ORSResponse display1() {
-		TestDTO dto = new TestDTO();
 		ORSResponse res = new ORSResponse();
 		res.addMessage("User Register SuccessFully");
 		res.setSuccess(true);
@@ -34,7 +33,6 @@ public class OrsCtl {
 
 	@GetMapping("display2")
 	public ORSResponse display2() {
-		TestDTO dto = new TestDTO();
 		ORSResponse res = new ORSResponse();
 		res.addInputError("invalid  login and password");
 		/* res.setSuccess(true); */
