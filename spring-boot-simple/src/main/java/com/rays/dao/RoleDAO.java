@@ -1,7 +1,13 @@
 package com.rays.dao;
 
+import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 import org.springframework.stereotype.Repository;
 
@@ -34,4 +40,35 @@ public class RoleDAO {
 		RoleDTO dto = entityManager.find(RoleDTO.class, pk);
 		return dto;
 	}
-}
+
+	public List<RoleDTO> search(RoleDTO dto, int pageNo, int pageSize) {
+
+		List<RoleDTO> list = null;
+
+		// CriteriaBuilder: Query banane ke liye use hota hai
+		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+		
+		// CriteriaQuery: batata hai ki query kis type ka result degi (RoleDTO)
+		CriteriaQuery<RoleDTO> cq = builder.createQuery(RoleDTO.class);
+		
+		// Root: entity class ko represent karta hai (FROM RoleDTO)
+				Root<RoleDTO> qRoot = cq.from(RoleDTO.class);
+				
+				cq.select(qRoot);
+				
+				// EntityManager se seletct ki actual query create ho rahi hai
+				TypedQuery<RoleDTO> tq = entityManager.createQuery(cq);
+				
+				
+				// limit 0, 5 pagination query append karne ke liye
+				if (pageSize > 0) {
+					tq.setFirstResult(pageNo * pageSize);
+					tq.setMaxResults(pageSize);
+				}
+
+				list = tq.getResultList();
+
+				return list;
+			}
+	}
+

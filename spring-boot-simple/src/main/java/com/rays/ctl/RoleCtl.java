@@ -1,5 +1,7 @@
 package com.rays.ctl;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +11,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.rays.common.BaseCtl;
 import com.rays.common.ORSResponse;
 import com.rays.dto.RoleDTO;
 import com.rays.form.RoleForm;
@@ -18,7 +22,7 @@ import com.rays.service.RoleService;
 
 @RestController
 @RequestMapping(value = "role")
-public class RoleCtl {
+public class RoleCtl extends BaseCtl {
 
 	@Autowired
 	RoleService roleService;
@@ -28,8 +32,8 @@ public class RoleCtl {
 
 		ORSResponse res = new ORSResponse();
 
-		if (bindingResult.hasErrors()) {
-			res.addInputError("role and description is required");
+		res = validate(bindingResult);
+		if (res.isSuccess() == false) {
 			return res;
 		}
 
@@ -48,9 +52,15 @@ public class RoleCtl {
 	}
 
 	@PostMapping("update")
-	public ORSResponse update(@RequestBody RoleForm form) {
+	public ORSResponse update(@RequestBody @Valid RoleForm form, BindingResult bindingResult) {
 
 		ORSResponse res = new ORSResponse();
+
+		res = validate(bindingResult);
+		if (res.isSuccess() == false) {
+			return res;
+		}
+
 		RoleDTO dto = new RoleDTO();
 
 		dto.setId(form.getId());
@@ -73,7 +83,7 @@ public class RoleCtl {
 
 		if (ids != null && ids.length > 0) {
 
-			for (long id : ids) {					
+			for (long id : ids) {
 
 				roleService.delete(id);
 				res.addMessage("recored deleted successfully");
@@ -83,7 +93,7 @@ public class RoleCtl {
 		}
 		return res;
 	}
-	
+
 	@GetMapping("get/{id}")
 	public ORSResponse get(@PathVariable(required = false) long id) {
 
@@ -98,5 +108,23 @@ public class RoleCtl {
 
 		return res;
 
+	}
+
+	@RequestMapping(value = "/search/{pageNo}" , method = {RequestMethod.GET , RequestMethod.POST})
+	public ORSResponse search(@RequestBody RoleForm form, @PathVariable(required = false) int pageNo) {
+		
+		ORSResponse res = new ORSResponse();
+
+		int pageSize = 5;
+
+		List<RoleDTO> list = roleService.search(null, pageNo, pageSize);
+
+		if (list.size() > 0) {
+			res.setSuccess(true);
+			res.addData(list);
+			return res;
+		}
+
+		return res;
 	}
 }
