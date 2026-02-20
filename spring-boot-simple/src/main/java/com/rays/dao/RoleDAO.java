@@ -1,5 +1,6 @@
 package com.rays.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -7,6 +8,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.stereotype.Repository;
@@ -47,28 +49,38 @@ public class RoleDAO {
 
 		// CriteriaBuilder: Query banane ke liye use hota hai
 		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-		
+
 		// CriteriaQuery: batata hai ki query kis type ka result degi (RoleDTO)
 		CriteriaQuery<RoleDTO> cq = builder.createQuery(RoleDTO.class);
-		
+
+		List<Predicate> predicateList = new ArrayList<Predicate>();
+
 		// Root: entity class ko represent karta hai (FROM RoleDTO)
-				Root<RoleDTO> qRoot = cq.from(RoleDTO.class);
-				
-				cq.select(qRoot);
-				
-				// EntityManager se seletct ki actual query create ho rahi hai
-				TypedQuery<RoleDTO> tq = entityManager.createQuery(cq);
-				
-				
-				// limit 0, 5 pagination query append karne ke liye
-				if (pageSize > 0) {
-					tq.setFirstResult(pageNo * pageSize);
-					tq.setMaxResults(pageSize);
-				}
+		Root<RoleDTO> qRoot = cq.from(RoleDTO.class);
 
-				list = tq.getResultList();
-
-				return list;
+		if (dto != null) {
+			if (dto.getName() != null && dto.getName().length() > 0) {
+				predicateList.add(builder.like(qRoot.get("name"), dto.getName() + "%"));
 			}
-	}
+			if(dto.getDescription() != null && dto.getDescription().length() > 0) {
+				predicateList.add(builder.like(qRoot.get("description"), dto.getDescription() + "%"));
+			}
+		}
 
+		// cq.select(qRoot);
+		cq.where(predicateList.toArray(new Predicate[predicateList.size()]));
+
+		// EntityManager se seletct ki actual query create ho rahi hai
+		TypedQuery<RoleDTO> tq = entityManager.createQuery(cq);
+
+		// limit 0, 5 pagination query append karne ke liye
+		if (pageSize > 0) {
+			tq.setFirstResult(pageNo * pageSize);
+			tq.setMaxResults(pageSize);
+		}
+
+		list = tq.getResultList();
+
+		return list;
+	}
+}

@@ -16,63 +16,53 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.rays.common.BaseCtl;
 import com.rays.common.ORSResponse;
-import com.rays.dto.RoleDTO;
-import com.rays.form.RoleForm;
-import com.rays.service.RoleService;
+import com.rays.dto.UserDTO;
+import com.rays.form.UserForm;
+import com.rays.service.UserService;
 
 @RestController
-@RequestMapping(value = "role")
-public class RoleCtl extends BaseCtl {
+@RequestMapping(value = "user")
+public class UserCtl extends BaseCtl {
 
 	@Autowired
-	RoleService roleService;
+	public UserService service;
 
 	@PostMapping("save")
-	public ORSResponse save(@RequestBody @Valid RoleForm form, BindingResult bindingResult) {
+	public ORSResponse save(@RequestBody @Valid UserForm form, BindingResult bindingResult) {
 
 		ORSResponse res = new ORSResponse();
-
 		res = validate(bindingResult);
-		if (res.isSuccess() == false) {
+		if (!res.isSuccess()) {
 			return res;
 		}
 
-		RoleDTO dto = new RoleDTO();
+		UserDTO dto = (UserDTO) form.getDto();
 
-		dto.setName(form.getName());
-		dto.setDescription(form.getDescription());
-
-		long id = roleService.add(dto);
+		long id = service.add(dto);
 
 		res.setSuccess(true);
-		res.addMessage("role addedd successfully");
+		res.addMessage("user added successfully");
 		res.addData(dto);
 
 		return res;
 	}
 
 	@PostMapping("update")
-	public ORSResponse update(@RequestBody @Valid RoleForm form, BindingResult bindingResult) {
+	public ORSResponse update(@RequestBody @Valid UserForm form, BindingResult bindinigResult) {
 
 		ORSResponse res = new ORSResponse();
 
-		res = validate(bindingResult);
-		if (res.isSuccess() == false) {
+		res = validate(bindinigResult);
+		if (!res.success) {
 			return res;
 		}
 
-		RoleDTO dto = new RoleDTO();
-
-		dto.setId(form.getId());
-		dto.setName(form.getName());
-		dto.setDescription(form.getDescription());
-
-		roleService.update(dto);
+		UserDTO dto = (UserDTO) form.getDto();
+		service.update(dto);
 
 		res.setSuccess(true);
-		res.addMessage("role update successfully");
-		// res.addData(dto);
-
+		res.addMessage("user updated successfully");
+		res.addData(dto);
 		return res;
 	}
 
@@ -82,15 +72,13 @@ public class RoleCtl extends BaseCtl {
 		ORSResponse res = new ORSResponse();
 
 		if (ids != null && ids.length > 0) {
-
 			for (long id : ids) {
-
-				roleService.delete(id);
-				res.addMessage("recored deleted successfully");
+				service.delete(id);
 				res.setSuccess(true);
-
+				res.addMessage("user deleted successfully");
 			}
 		}
+
 		return res;
 	}
 
@@ -99,37 +87,31 @@ public class RoleCtl extends BaseCtl {
 
 		ORSResponse res = new ORSResponse();
 
-		RoleDTO dto = roleService.findByPk(id);
+		UserDTO dto = service.findByPk(id);
 
 		if (dto != null) {
-			res.addData(dto);
 			res.setSuccess(true);
 		}
-
+		res.addData(dto);
 		return res;
 
 	}
 
-	@RequestMapping(value = "/search/{pageNo}" , method = {RequestMethod.GET , RequestMethod.POST})
-	public ORSResponse search(@RequestBody RoleForm form, @PathVariable(required = false) int pageNo) {
-		
+	@RequestMapping(value = "/search/{pageNo}", method = { RequestMethod.GET, RequestMethod.POST })
+	public ORSResponse search(@RequestBody UserForm form, @PathVariable int pageNo) {
+
 		ORSResponse res = new ORSResponse();
-		
-		RoleDTO dto = new RoleDTO();
-		
-		dto.setName(form.getName());
-		dto.setDescription(form.getDescription());
 
+		UserDTO dto = (UserDTO) form.getDto();
 		int pageSize = 5;
+		List<UserDTO> list = service.search(dto, pageNo, pageSize);
 
-		List<RoleDTO> list = roleService.search(dto, pageNo, pageSize);
+		if (list != null && list.size() > 0) {
 
-		if (list.size() > 0) {
 			res.setSuccess(true);
-			res.addData(list);
-			return res;
 		}
-
+		res.addData(list);
 		return res;
+
 	}
 }
