@@ -2,7 +2,9 @@ package com.rays.form;
 
 import javax.validation.constraints.NotEmpty;
 
-public class RoleForm {
+import com.rays.common.BaseForm;
+
+public class RoleForm extends BaseForm{
 
 	protected Long id = null;
 

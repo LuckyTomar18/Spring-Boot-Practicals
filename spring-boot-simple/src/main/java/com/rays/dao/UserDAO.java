@@ -16,6 +16,7 @@ import org.springframework.stereotype.Repository;
 
 import com.rays.dto.RoleDTO;
 import com.rays.dto.UserDTO;
+import com.rays.service.AttachmentService;
 import com.rays.service.RoleService;
 
 @Repository
@@ -26,6 +27,9 @@ public class UserDAO {
 
 	@Autowired
 	public RoleService roleservice;
+
+	@Autowired
+	public AttachmentService attachmentService;
 
 	public long add(UserDTO dto) {
 
@@ -49,6 +53,10 @@ public class UserDAO {
 	}
 
 	public void delete(UserDTO dto) {
+
+		if (dto.getImageId() != null && dto.getImageId() > 0) {
+			attachmentService.delete(dto.getImageId());
+}
 		entityManager.remove(dto);
 
 	}
