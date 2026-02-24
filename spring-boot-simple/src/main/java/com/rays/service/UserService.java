@@ -47,4 +47,20 @@ public class UserService {
 
 		return dao.search(dto, pageNo, pageSize);
 	}
+	
+	@Transactional(readOnly = true)
+	public UserDTO authenticate(String login, String password) {
+		UserDTO dto = new UserDTO();
+
+		dto = dao.findByUniqueKey("loginId", login);
+
+		if (dto != null) {
+			if (dto.getPassword().equals(password)) {
+				return dto;
+			}
+		}
+
+		return null;
+	}
+
 }

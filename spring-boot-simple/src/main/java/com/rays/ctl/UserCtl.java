@@ -1,6 +1,5 @@
 package com.rays.ctl;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
@@ -21,11 +20,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.rays.common.BaseCtl;
+import com.rays.common.DropDownListInt;
 import com.rays.common.ORSResponse;
 import com.rays.dto.AttachmentDTO;
 import com.rays.dto.UserDTO;
 import com.rays.form.UserForm;
 import com.rays.service.AttachmentService;
+import com.rays.service.RoleService;
 import com.rays.service.UserService;
 
 @RestController
@@ -37,6 +38,18 @@ public class UserCtl extends BaseCtl {
 
 	@Autowired
 	public AttachmentService attachmentService;
+	
+	@Autowired
+	public RoleService roleService;
+	
+	@GetMapping("preload")
+	public ORSResponse preload() {
+		
+		List<DropDownListInt> roleList = roleService.search(null, 0, 0);
+		ORSResponse res = new ORSResponse();
+		res.addResult("roleList", roleList);
+		return res;
+	}
 
 	@PostMapping("save")
 	public ORSResponse save(@RequestBody @Valid UserForm form, BindingResult bindingResult) {

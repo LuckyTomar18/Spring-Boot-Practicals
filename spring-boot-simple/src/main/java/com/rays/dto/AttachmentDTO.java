@@ -84,4 +84,10 @@ public class AttachmentDTO extends BaseDTO {
 	public void setDoc(byte[] doc) {
 		this.doc = doc;
 	}
+
+	@Override
+	public String getValue() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
